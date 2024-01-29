@@ -9,11 +9,10 @@ import cv2
 import time
 from PIL import Image, ImageTk
 
-
 mixer.init()
 
 
-def update_frame(cap, panel, root, emotion_predictor=None, interval=10, start_time=None):
+def emotion_mode(cap, panel, root, emotion_predictor=None, interval=5, start_time=None):
     if emotion_predictor is None:
         emotion_predictor = EmotionPredictor()
 
@@ -43,8 +42,16 @@ def update_frame(cap, panel, root, emotion_predictor=None, interval=10, start_ti
     if elapsed_time >= interval:
         start_time = time.time()
         print(f"Emotion after {interval} seconds: {predicted_emotion}")
+        if (predicted_emotion == "angry"):
+            open_folder_by_path("C:/Users/ASUS/Music/Kasun")
+        elif (predicted_emotion == "happy"):
+            open_folder_by_path("C:/Users/ASUS/Music/Kasun")
+        elif (predicted_emotion == "sad"):
+            open_folder_by_path("C:/Users/ASUS/Music/Kasun")
+        else:
+            open_folder_by_path("C:/Users/ASUS/Music/Kasun")
 
-    root.after(10, update_frame, cap, panel, root,
+    root.after(10, emotion_mode, cap, panel, root,
                emotion_predictor, interval, start_time)
 
 
@@ -56,6 +63,7 @@ def open_folder(playlist):
         for song in songs:
             if song.endswith(".mp3"):
                 playlist.insert(END, song)
+        playlist.selection_set(0)
 
 
 def play_song(playlist):
@@ -63,28 +71,6 @@ def play_song(playlist):
     mixer.music.load(playlist.get(ACTIVE))
     mixer.music.play()
     # music.config(text=music_name[0:-4])
-
-
-# def move_up(playlist):
-#     selected_song = playlist.curselection()
-#     if selected_song:
-#         index = selected_song[0]
-#         if index > 0:
-#             song = playlist.get(index)
-#             playlist.delete(index)
-#             playlist.insert(index - 1, song)
-#             playlist.selection_set(index - 1)
-
-
-# def move_down(playlist):
-#     selected_song = playlist.curselection()
-#     if selected_song:
-#         index = selected_song[0]
-#         if index < playlist.size() - 1:
-#             song = playlist.get(index)
-#             playlist.delete(index)
-#             playlist.insert(index + 1, song)
-#             playlist.selection_set(index + 1)
 
 
 def move_up():
@@ -128,13 +114,13 @@ def hand():
     global cap
     cap = cv2.VideoCapture(0)
     detector = handDetector()
-    update_frame_hand(cap, detector, panel, root)
+    hand_gesture_mode(cap, detector, panel, root)
 
 
 def start_camera():
     global cap
     cap = cv2.VideoCapture(0)
-    update_frame(cap, panel, root)
+    emotion_mode(cap, panel, root)
 
 
 def stop_camera():
@@ -158,9 +144,51 @@ def open_folder_by_path(default_path=None):
         playlist.delete(0, END)  # Clear existing items in the playlist
         for song in songs:
             playlist.insert(END, song)
+        playlist.selection_set(0)
 
 
-def update_frame_hand(cap, detector, panel, root):
+# def hand_gesture_mode(cap, detector, panel, root):
+
+#     pTime = 0
+#     cTime = 0
+#     ret, test_img = cap.read()
+#     test_img = cv2.flip(test_img, 1)
+
+#     if ret:
+#         img = detector.findHands(test_img)
+#         lmList = detector.findPosition(img)
+
+#         if len(lmList) != 0:
+
+#             if (lmList[0][2]-lmList[16][2] < 50 and lmList[17][1]-lmList[4][1] > 0):
+#                 move_down()
+#                 print("down")
+
+#             elif (lmList[0][2]-lmList[16][2] < 100 and lmList[17][1]-lmList[4][1] < 0):
+#                 print("Up")
+#                 move_up()
+
+#         cTime = time.time()
+#         fps = 1/(cTime-pTime)
+#         pTime = cTime
+
+#         bgr_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+#         resized_img = cv2.resize(bgr_img, (1000, 700))
+#         img = Image.fromarray(resized_img)
+#         img = ImageTk.PhotoImage(image=img)
+#         panel.img = img
+#         panel.config(image=img)
+
+#         # Adjust the delay for smoother performance
+#         root.after(30, hand_gesture_mode, cap, detector, panel, root)
+
+# Initialize hand state
+hand_state = 'none'
+music_state = 'none'
+
+
+def hand_gesture_mode(cap, detector, panel, root):
+    global hand_state, music_state
     pTime = 0
     cTime = 0
     ret, test_img = cap.read()
@@ -171,24 +199,41 @@ def update_frame_hand(cap, detector, panel, root):
         lmList = detector.findPosition(img)
 
         if len(lmList) != 0:
-            # print(lmList[4][2])
-            # print(lmList[8][2])
-            # print(lmList[12][2])
-            # print("top", lmList[16][2])
-            # # print(lmList[20][2])
-            # print("bottom", lmList[0][2])
-            print("first", lmList[0][2]-lmList[16][2])
-            print("second", lmList[17][1]-lmList[4][1])
-            if (lmList[0][2]-lmList[16][2] < 50 and lmList[17][1]-lmList[4][1] > 0):
-                move_down()
-                print("down")
+            # Calculate distances
+            # Distance between index and wrist
+            distance1 = lmList[0][2] - lmList[16][2]
+            # Distance between middle and little finger
+            distance2 = lmList[17][1] - lmList[4][1]
 
-            elif (lmList[0][2]-lmList[16][2] < 100 and lmList[17][1]-lmList[4][1] < 0):
-                print("Up")
-                move_up()
+            if (lmList[0][2]-lmList[12][2] > 200 and lmList[0][2] - lmList[16][2] > 200):
+                hand_state = 'set'
+
+            if (lmList[0][2]-lmList[12][2] < 100 and lmList[0][2]-lmList[8][2] < 100):
+                music_state = 'set'
+            print(lmList[0][2]-lmList[12][2])
+            if distance1 < 50 and distance2 > 0:  # Downward motion detected
+                if hand_state != 'none':
+                    move_down()
+                    hand_state = 'none'
+
+            elif distance1 < 100 and distance2 < 0:  # Upward motion detected
+                if hand_state != 'none':
+                    move_up()
+                    hand_state = 'none'
+
+            print(music_state)
+            print(lmList[8][2]-lmList[12][2])
+            if lmList[0][2]-lmList[8][2] > 200 and lmList[0][2]-lmList[12][2] > 200 and lmList[8][2]-lmList[12][2] > 10:
+                if music_state != 'none':
+                    play_song(playlist)
+                    music_state = 'none'
+            elif lmList[0][2]-lmList[8][2] > 200 and lmList[0][2]-lmList[12][2] > 200 and lmList[8][2]-lmList[12][2] < 10:
+                if music_state != 'none':
+                    stop()
+                    music_state = 'none'
 
         cTime = time.time()
-        fps = 1/(cTime-pTime)
+        fps = 1 / (cTime - pTime)
         pTime = cTime
 
         bgr_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
@@ -199,38 +244,30 @@ def update_frame_hand(cap, detector, panel, root):
         panel.config(image=img)
 
         # Adjust the delay for smoother performance
-        root.after(30, update_frame_hand, cap, detector, panel, root)
+        root.after(30, hand_gesture_mode, cap, detector, panel, root)
 
 
 root = tk.Tk()
 root.title("Camera App")
 root.geometry("1480x700")
-# root.configure(bg="#0f1a2b")
 # Disable window resizing
 root.resizable(False, False)
-
 # Create left and right frames
 left_frame = tk.Frame(root, width=480, height=600, bg="#0f1a2b")
 left_frame.pack(side=tk.LEFT, fill=tk.BOTH)
-
 # Disable propagation for the left frame
 left_frame.pack_propagate(False)
-
 right_frame = tk.Frame(root)
 right_frame.pack(side=tk.RIGHT, fill=tk.BOTH)
-
 # Right frame content for camera preview
 panel = tk.Label(right_frame)
 panel.pack()
-
 # label
 music = Label(root, text="", font=("arial", 13), fg="white")
 root.title(music.cget("text"))
-
 music_frame = Frame(root, bd=2, relief=RIDGE)
 # music_frame.place(x=60, y=75, width=360, height=199)
 music_frame.place(x=50, y=10, width=380, height=520)
-
 scroll = Scrollbar(music_frame)
 playlist = Listbox(music_frame, width=60, font=("arial", 10), bg="#0f1a2b", fg="white",
                    selectbackground="#21b3de", selectforeground="white",
