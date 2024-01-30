@@ -43,13 +43,17 @@ def emotion_mode(cap, panel, root, emotion_predictor=None, interval=5, start_tim
         start_time = time.time()
         print(f"Emotion after {interval} seconds: {predicted_emotion}")
         if (predicted_emotion == "angry"):
-            open_folder_by_path("C:/Users/ASUS/Music/Kasun")
+            open_folder_by_path("C:/Users/ASUS/Music/HCI_Songs/Angry")
         elif (predicted_emotion == "happy"):
-            open_folder_by_path("C:/Users/ASUS/Music/Kasun")
+            open_folder_by_path("C:/Users/ASUS/Music/HCI_Songs/Happy")
         elif (predicted_emotion == "sad"):
-            open_folder_by_path("C:/Users/ASUS/Music/Kasun")
-        else:
-            open_folder_by_path("C:/Users/ASUS/Music/Kasun")
+            open_folder_by_path("C:/Users/ASUS/Music/HCI_Songs/Sad")
+        elif (predicted_emotion == "neutral"):
+            open_folder_by_path("C:/Users/ASUS/Music/HCI_Songs/Neutral")
+        elif (predicted_emotion == "fear"):
+            open_folder_by_path("C:/Users/ASUS/Music/HCI_Songs/Fear")
+        elif (predicted_emotion == "surprise"):
+            open_folder_by_path("C:/Users/ASUS/Music/HCI_Songs/Surprise")
 
     root.after(10, emotion_mode, cap, panel, root,
                emotion_predictor, interval, start_time)
@@ -75,6 +79,7 @@ def play_song(playlist):
 
 def move_up():
     selected_song = playlist.curselection()
+    print(selected_song)
     if selected_song:
         index = selected_song[0]
         if index > 0:
@@ -82,10 +87,12 @@ def move_up():
             playlist.delete(index)
             playlist.insert(index - 1, song)
             playlist.selection_set(index - 1)
+            playlist.activate(index - 1)
 
 
 def move_down():
     selected_song = playlist.curselection()
+    print(selected_song)
     if selected_song:
         index = selected_song[0]
         if index < playlist.size() - 1:
@@ -93,6 +100,7 @@ def move_down():
             playlist.delete(index)
             playlist.insert(index + 1, song)
             playlist.selection_set(index + 1)
+            playlist.activate(index - 1)
 
 
 def un_pause():
@@ -208,9 +216,8 @@ def hand_gesture_mode(cap, detector, panel, root):
             if (lmList[0][2]-lmList[12][2] > 200 and lmList[0][2] - lmList[16][2] > 200):
                 hand_state = 'set'
 
-            if (lmList[0][2]-lmList[12][2] < 100 and lmList[0][2]-lmList[8][2] < 100):
+            if (lmList[0][2]-lmList[12][2] > 100 and lmList[0][2]-lmList[8][2] > 100):
                 music_state = 'set'
-            print(lmList[0][2]-lmList[12][2])
             if distance1 < 50 and distance2 > 0:  # Downward motion detected
                 if hand_state != 'none':
                     move_down()
@@ -221,8 +228,6 @@ def hand_gesture_mode(cap, detector, panel, root):
                     move_up()
                     hand_state = 'none'
 
-            print(music_state)
-            print(lmList[8][2]-lmList[12][2])
             if lmList[0][2]-lmList[8][2] > 200 and lmList[0][2]-lmList[12][2] > 200 and lmList[8][2]-lmList[12][2] > 10:
                 if music_state != 'none':
                     play_song(playlist)

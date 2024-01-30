@@ -10,7 +10,7 @@ import numpy as np
 
 class EmotionPredictor:
     # def __init__(self, model_path="E:/HCI_Project/GestureMusic/best_model.h5"):
-    def __init__(self, model_path="E:/HCI_Project/GestureMusic/emotion_model.h5"):
+    def __init__(self, model_path="E:/HCI_Project/GestureMusic/best_model.h5"):
         self.model = load_model(model_path)
         self.face_cascade = cv2.CascadeClassifier(
             cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
