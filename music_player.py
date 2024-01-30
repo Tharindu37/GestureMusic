@@ -12,6 +12,81 @@ from PIL import Image, ImageTk
 mixer.init()
 
 
+# def hand_gesture_mode(cap, detector, panel, root):
+
+#     pTime = 0
+#     cTime = 0
+#     ret, test_img = cap.read()
+#     test_img = cv2.flip(test_img, 1)
+
+#     if ret:
+#         img = detector.findHands(test_img)
+#         lmList = detector.findPosition(img)
+
+#         if len(lmList) != 0:
+
+#             if (lmList[0][2]-lmList[16][2] < 50 and lmList[17][1]-lmList[4][1] > 0):
+#                 move_down()
+#                 print("down")
+
+#             elif (lmList[0][2]-lmList[16][2] < 100 and lmList[17][1]-lmList[4][1] < 0):
+#                 print("Up")
+#                 move_up()
+
+#         cTime = time.time()
+#         fps = 1/(cTime-pTime)
+#         pTime = cTime
+
+#         bgr_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+#         resized_img = cv2.resize(bgr_img, (1000, 700))
+#         img = Image.fromarray(resized_img)
+#         img = ImageTk.PhotoImage(image=img)
+#         panel.img = img
+#         panel.config(image=img)
+
+#         # Adjust the delay for smoother performance
+#         root.after(30, hand_gesture_mode, cap, detector, panel, root)
+
+# Initialize hand state
+
+
+root = tk.Tk()
+root.title("Camera App")
+root.geometry("1480x700")
+# Disable window resizing
+root.resizable(False, False)
+# Create left and right frames
+left_frame = tk.Frame(root, width=480, height=600, bg="#0f1a2b")
+left_frame.pack(side=tk.LEFT, fill=tk.BOTH)
+# Disable propagation for the left frame
+left_frame.pack_propagate(False)
+right_frame = tk.Frame(root)
+right_frame.pack(side=tk.RIGHT, fill=tk.BOTH)
+# Right frame content for camera preview
+panel = tk.Label(right_frame)
+panel.pack()
+# label
+music = Label(root, text="", font=("arial", 13), fg="white")
+root.title(music.cget("text"))
+music_frame = Frame(root, bd=2, relief=RIDGE)
+# music_frame.place(x=60, y=75, width=360, height=199)
+music_frame.place(x=50, y=10, width=380, height=520)
+scroll = Scrollbar(music_frame)
+playlist = Listbox(music_frame, width=60, font=("arial", 10), bg="#0f1a2b", fg="white",
+                   selectbackground="#21b3de", selectforeground="white",
+                   highlightthickness=0, bd=0, activestyle="none",
+                   exportselection=False, cursor="hand2")
+playlist.config(yscrollcommand=scroll.set)
+scroll.pack(side=RIGHT, fill=Y)
+playlist.pack(side=LEFT, fill=BOTH, expand=True)
+
+
+# def play_song(playlist):
+#     music_name = playlist.get(ACTIVE)
+#     mixer.music.load(playlist.get(ACTIVE))
+#     mixer.music.play()
+# music.config(text=music_name[0:-4])
+
 def emotion_mode(cap, panel, root, emotion_predictor=None, interval=5, start_time=None):
     if emotion_predictor is None:
         emotion_predictor = EmotionPredictor()
@@ -70,39 +145,6 @@ def open_folder(playlist):
         playlist.selection_set(0)
 
 
-def play_song(playlist):
-    music_name = playlist.get(ACTIVE)
-    mixer.music.load(playlist.get(ACTIVE))
-    mixer.music.play()
-    # music.config(text=music_name[0:-4])
-
-
-def move_up():
-    selected_song = playlist.curselection()
-    print(selected_song)
-    if selected_song:
-        index = selected_song[0]
-        if index > 0:
-            song = playlist.get(index)
-            playlist.delete(index)
-            playlist.insert(index - 1, song)
-            playlist.selection_set(index - 1)
-            playlist.activate(index - 1)
-
-
-def move_down():
-    selected_song = playlist.curselection()
-    print(selected_song)
-    if selected_song:
-        index = selected_song[0]
-        if index < playlist.size() - 1:
-            song = playlist.get(index)
-            playlist.delete(index)
-            playlist.insert(index + 1, song)
-            playlist.selection_set(index + 1)
-            playlist.activate(index - 1)
-
-
 def un_pause():
     print("un_pause")
     mixer.music.unpause()
@@ -155,42 +197,36 @@ def open_folder_by_path(default_path=None):
         playlist.selection_set(0)
 
 
-# def hand_gesture_mode(cap, detector, panel, root):
+def play_song():
+    music_name = playlist.get(ACTIVE)
+    mixer.music.load(playlist.get(ACTIVE))
+    mixer.music.play()
 
-#     pTime = 0
-#     cTime = 0
-#     ret, test_img = cap.read()
-#     test_img = cv2.flip(test_img, 1)
 
-#     if ret:
-#         img = detector.findHands(test_img)
-#         lmList = detector.findPosition(img)
+def move_up():
+    selected_song = playlist.curselection()
+    print(selected_song)
+    if selected_song:
+        index = selected_song[0]
+        if index > 0:
+            playlist.select_clear(index)
+            playlist.selection_set(index - 1)
+            playlist.activate(index - 1)
+            play_song()
 
-#         if len(lmList) != 0:
 
-#             if (lmList[0][2]-lmList[16][2] < 50 and lmList[17][1]-lmList[4][1] > 0):
-#                 move_down()
-#                 print("down")
+def move_down():
+    selected_song = playlist.curselection()
+    print(selected_song)
+    if selected_song:
+        index = selected_song[0]
+        if index < playlist.size() - 1:
+            playlist.select_clear(index)
+            playlist.selection_set(index + 1)
+            playlist.activate(index + 1)
+            play_song()
 
-#             elif (lmList[0][2]-lmList[16][2] < 100 and lmList[17][1]-lmList[4][1] < 0):
-#                 print("Up")
-#                 move_up()
 
-#         cTime = time.time()
-#         fps = 1/(cTime-pTime)
-#         pTime = cTime
-
-#         bgr_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-#         resized_img = cv2.resize(bgr_img, (1000, 700))
-#         img = Image.fromarray(resized_img)
-#         img = ImageTk.PhotoImage(image=img)
-#         panel.img = img
-#         panel.config(image=img)
-
-#         # Adjust the delay for smoother performance
-#         root.after(30, hand_gesture_mode, cap, detector, panel, root)
-
-# Initialize hand state
 hand_state = 'none'
 music_state = 'none'
 
@@ -228,14 +264,14 @@ def hand_gesture_mode(cap, detector, panel, root):
                     move_up()
                     hand_state = 'none'
 
-            if lmList[0][2]-lmList[8][2] > 200 and lmList[0][2]-lmList[12][2] > 200 and lmList[8][2]-lmList[12][2] > 10:
-                if music_state != 'none':
-                    play_song(playlist)
-                    music_state = 'none'
-            elif lmList[0][2]-lmList[8][2] > 200 and lmList[0][2]-lmList[12][2] > 200 and lmList[8][2]-lmList[12][2] < 10:
-                if music_state != 'none':
-                    stop()
-                    music_state = 'none'
+            # if lmList[0][2]-lmList[8][2] > 200 and lmList[0][2]-lmList[12][2] > 200 and lmList[8][2]-lmList[12][2] > 10:
+            #     if music_state != 'none':
+            #         play_song(playlist)
+            #         music_state = 'none'
+            # elif lmList[0][2]-lmList[8][2] > 200 and lmList[0][2]-lmList[12][2] > 200 and lmList[8][2]-lmList[12][2] < 10:
+            #     if music_state != 'none':
+            #         stop()
+            #         music_state = 'none'
 
         cTime = time.time()
         fps = 1 / (cTime - pTime)
@@ -251,36 +287,6 @@ def hand_gesture_mode(cap, detector, panel, root):
         # Adjust the delay for smoother performance
         root.after(30, hand_gesture_mode, cap, detector, panel, root)
 
-
-root = tk.Tk()
-root.title("Camera App")
-root.geometry("1480x700")
-# Disable window resizing
-root.resizable(False, False)
-# Create left and right frames
-left_frame = tk.Frame(root, width=480, height=600, bg="#0f1a2b")
-left_frame.pack(side=tk.LEFT, fill=tk.BOTH)
-# Disable propagation for the left frame
-left_frame.pack_propagate(False)
-right_frame = tk.Frame(root)
-right_frame.pack(side=tk.RIGHT, fill=tk.BOTH)
-# Right frame content for camera preview
-panel = tk.Label(right_frame)
-panel.pack()
-# label
-music = Label(root, text="", font=("arial", 13), fg="white")
-root.title(music.cget("text"))
-music_frame = Frame(root, bd=2, relief=RIDGE)
-# music_frame.place(x=60, y=75, width=360, height=199)
-music_frame.place(x=50, y=10, width=380, height=520)
-scroll = Scrollbar(music_frame)
-playlist = Listbox(music_frame, width=60, font=("arial", 10), bg="#0f1a2b", fg="white",
-                   selectbackground="#21b3de", selectforeground="white",
-                   highlightthickness=0, bd=0, activestyle="none",
-                   exportselection=False, cursor="hand2")
-playlist.config(yscrollcommand=scroll.set)
-scroll.pack(side=RIGHT, fill=Y)
-playlist.pack(side=LEFT, fill=BOTH, expand=True)
 
 # Left frame content
 Button(root, text="Open Playlist", width=13, height=2, font=(
@@ -301,7 +307,7 @@ canvas_play = Canvas(root, width=play_button.width(
 ), height=play_button.height(), bg="#ffffff", bd=0, highlightthickness=0)
 canvas_play.place(x=40, y=590)
 canvas_play.create_image(0, 0, anchor=NW, image=play_button)
-canvas_play.bind("<Button-1>", lambda event: play_song(playlist))
+canvas_play.bind("<Button-1>", lambda event: play_song())
 
 pause_button = PhotoImage(file="pause.png")
 canvas_pause = Canvas(root, width=pause_button.width(
