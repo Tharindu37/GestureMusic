@@ -142,7 +142,7 @@ def open_folder(playlist):
         for song in songs:
             if song.endswith(".mp3"):
                 playlist.insert(END, song)
-        playlist.selection_set(0)
+        # playlist.selection_set(0)
 
 
 def un_pause():
@@ -194,7 +194,7 @@ def open_folder_by_path(default_path=None):
         playlist.delete(0, END)  # Clear existing items in the playlist
         for song in songs:
             playlist.insert(END, song)
-        playlist.selection_set(0)
+        # playlist.selection_set(0)
 
 
 def play_song():
@@ -205,7 +205,11 @@ def play_song():
 
 def move_up():
     selected_song = playlist.curselection()
-    print(selected_song)
+    if not selected_song:  # Check if selected_song is empty
+        playlist.select_clear(0)
+        playlist.selection_set(0)
+        playlist.activate(0)
+        play_song()
     if selected_song:
         index = selected_song[0]
         if index > 0:
@@ -217,7 +221,11 @@ def move_up():
 
 def move_down():
     selected_song = playlist.curselection()
-    print(selected_song)
+    if not selected_song:  # Check if selected_song is empty
+        playlist.select_clear(0)
+        playlist.selection_set(0)
+        playlist.activate(0)
+        play_song()
     if selected_song:
         index = selected_song[0]
         if index < playlist.size() - 1:
@@ -263,6 +271,10 @@ def hand_gesture_mode(cap, detector, panel, root):
                 if hand_state != 'none':
                     move_up()
                     hand_state = 'none'
+
+            print(lmList[5][1]-lmList[4][1])
+            if (lmList[0][2] - lmList[12][2] > 200 and lmList[0][2] - lmList[4][2] > 100 and lmList[5][1]-lmList[4][1] < 50):
+                stop()
 
             # if lmList[0][2]-lmList[8][2] > 200 and lmList[0][2]-lmList[12][2] > 200 and lmList[8][2]-lmList[12][2] > 10:
             #     if music_state != 'none':
