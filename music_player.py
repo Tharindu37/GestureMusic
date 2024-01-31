@@ -51,8 +51,9 @@ mixer.init()
 
 
 root = tk.Tk()
-root.title("Camera App")
+# root.title("Camera App")
 root.geometry("1480x700")
+root.iconbitmap("icon.ico")
 # Disable window resizing
 root.resizable(False, False)
 # Create left and right frames
@@ -66,17 +67,20 @@ right_frame.pack(side=tk.RIGHT, fill=tk.BOTH)
 panel = tk.Label(right_frame)
 panel.pack()
 # label
-music = Label(root, text="", font=("arial", 13), fg="white")
+music = Label(root, text="Gesture Music", font=("arial", 13), fg="white")
 root.title(music.cget("text"))
 music_frame = Frame(root, bd=2, relief=RIDGE)
 # music_frame.place(x=60, y=75, width=360, height=199)
 music_frame.place(x=50, y=10, width=380, height=520)
 scroll = Scrollbar(music_frame)
-playlist = Listbox(music_frame, width=60, font=("arial", 10), bg="#0f1a2b", fg="white",
+scroll.config(width=0)
+playlist = Listbox(music_frame, width=60, font=("arial", 11), bg="#0f1a2b", fg="white",
                    selectbackground="#21b3de", selectforeground="white",
                    highlightthickness=0, bd=0, activestyle="none",
                    exportselection=False, cursor="hand2")
-playlist.config(yscrollcommand=scroll.set)
+# playlist.config(yscrollcommand=scroll.set)
+playlist.config(yscrollcommand=scroll.set,
+                highlightbackground="#0f1a2b", highlightthickness=2)
 scroll.pack(side=RIGHT, fill=Y)
 playlist.pack(side=LEFT, fill=BOTH, expand=True)
 
@@ -272,10 +276,18 @@ def hand_gesture_mode(cap, detector, panel, root):
                     move_up()
                     hand_state = 'none'
 
-            print(lmList[5][1]-lmList[4][1])
-            if (lmList[0][2] - lmList[12][2] > 200 and lmList[0][2] - lmList[4][2] > 100 and lmList[5][1]-lmList[4][1] < 50):
+            if (lmList[0][2] - lmList[12][2] > 200 and lmList[0][2] - lmList[4][2] > 100 and lmList[5][1]-lmList[4][1] < 50 and lmList[5][1]-lmList[4][1] > 0):
                 stop()
 
+            if (lmList[0][2] - lmList[12][2] > 200 and lmList[0][2] - lmList[4][2] > 100 and lmList[5][1]-lmList[4][1] < 0):
+                play_song()
+
+            # print(lmList[12][1]-lmList[8][1])
+            # if (lmList[0][2] - lmList[12][2] > 200 and lmList[0][2] - lmList[8][2] > 150 and lmList[12][1]-lmList[8][1] > 50):
+            #     # if hand_state != 'none':
+            #         print('play')
+            #         play_song()
+            #         hand_state = 'none'
             # if lmList[0][2]-lmList[8][2] > 200 and lmList[0][2]-lmList[12][2] > 200 and lmList[8][2]-lmList[12][2] > 10:
             #     if music_state != 'none':
             #         play_song(playlist)

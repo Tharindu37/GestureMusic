@@ -31,7 +31,9 @@ class EmotionPredictor:
 
             predictions = self.model.predict(img_pixels)
             max_index = np.argmax(predictions[0])
-            emotions = ('angry', 'disgust', 'fear', 'happy',
+            # emotions = ('angry', 'disgust', 'fear', 'happy',
+            #             'sad', 'surprise', 'neutral')
+            emotions = ('angry', 'disgust', 'happy', 'fear',
                         'sad', 'surprise', 'neutral')
             predicted_emotion = emotions[max_index]
             break  # Only process the first face detected
